@@ -76,7 +76,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
 
   VectorXd y = z - h;
 
-  //Adjust the value of theta if it is outside of [-M_PI, M_PI]
+  //Normalizing [-PI, PI]
   if (y(1) > M_PI){
     y(1) = y(1) - 2*M_PI;
   }

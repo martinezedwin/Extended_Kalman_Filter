@@ -21,7 +21,7 @@ FusionEKF::FusionEKF() {
   R_laser_ = MatrixXd(2, 2);
   R_radar_ = MatrixXd(3, 3);
   H_laser_ = MatrixXd(2, 4);
-  Hj_ = MatrixXd(3, 4);
+  //Hj_ = MatrixXd(3, 4);
 
   //measurement covariance matrix - laser
   R_laser_ << 0.0225, 0,
@@ -48,8 +48,8 @@ FusionEKF::FusionEKF() {
 
   ekf_.P_ << 1, 0, 0, 0,
              0, 1, 0, 0,
-             0, 0, 1000, 0,
-             0, 0, 0 ,1000;
+             0, 0, 1, 0,
+             0, 0, 0 ,1;
 
   H_laser_<< 1, 0, 0, 0,
              0, 1, 0, 0;
@@ -62,7 +62,7 @@ FusionEKF::FusionEKF() {
 FusionEKF::~FusionEKF() {}
 
 void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
-  /**
+  /** 
    * Initialization
    */
   if (!is_initialized_) {
@@ -76,7 +76,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     cout << "EKF: " << endl;
     ekf_.x_ = VectorXd(4);
     //ekf_.x_ << x, y, vx, vy
-    ekf_.x_ << 1, 1, 1, 1;
+    ekf_.x_ << 1.0, 1.0, 0.0, 0.0;
+
+    std::cout<<"Initialized x: "<<ekf_.x_<<std::endl;
 
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       // TODO: Convert radar from polar to cartesian coordinates 
@@ -90,6 +92,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       float vx = rho_dot*cos(phi);
       float vy = rho_dot*sin(phi);
 
+      ///*
       if (px<0.0001){
         px = 0.0001;
       }
@@ -97,6 +100,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       if (py<0.0001){
         py = 0.0001;
       }
+      //*/
 
       ekf_.x_ << px,py,vx,vy;
     }
@@ -109,7 +113,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
     // done initializing, no need to predict or update
     is_initialized_ = true;
+    cout << "Completed initialization of FusionEKF.\n";
     return;
+    }
   }
 
   /**
@@ -171,4 +177,4 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   cout << "x_ = " << ekf_.x_ << endl;
   cout << "P_ = " << ekf_.P_ << endl;
 }
-}
+
