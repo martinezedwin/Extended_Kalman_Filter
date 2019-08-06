@@ -131,7 +131,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
             0, ((dt*dt*dt*dt)/4) * noise_ay, 0, ((dt*dt*dt)/2) * noise_ay,
             ((dt*dt*dt)/2) * noise_ax, 0, (dt*dt)*noise_ax, 0,
             0, ((dt*dt*dt)/2) * noise_ay, 0, (dt*dt)*noise_ay;
-
   ekf_.Predict();
 
   /**
@@ -146,7 +145,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // TODO: Radar updates
-    ekf_.H__ = tools.CalculateJacobian(ekf_.x_);
+    ekf_.H_ = tools.CalculateJacobian(ekf_.x_);
     ekf_.R_ = R_radar_;
     ekf_.UpdateEKF(measurement_pack.raw_measurements_);
 
