@@ -28,8 +28,8 @@ void KalmanFilter::Predict() {
    */
   x_ = F_ * x_;
 
-  MatrixXd F_transpose = F_.F_transpose();
-  P_ = F_ * P_ * F_transpose +Q_;
+  MatrixXd F_transpose = F_.transpose();
+  P_ = F_ * P_ * F_transpose + Q_;
 
 }
 
@@ -37,16 +37,18 @@ void KalmanFilter::Update(const VectorXd &z) {
   /**
    * TODO: update the state by using Kalman Filter equations
    */
-  MatrixXd Ht = H.transpose();
-  MatrixXd Si = S.inverse();
-  MatrixXd I = MatrixXd::Identity(x_size, x_size);
-
-  VectorXd y = z - H_ * x_;
+  MatrixXd Ht = H_.transpose();
   MatrixXd S = H_ * P_ * Ht + R_;
+  MatrixXd Si = S.inverse();
+  
+
+  VectorXd y = z - (H_ * x_);
+  
   MatrixXd K =  P_ * Ht * Si;
 
   // new state
   x_ = x_ + (K * y);
+  MatrixXd I = MatrixXd::Identity(x_.size(), x_.size());
   P_ = (I - K * H_) * P_;
 
 }
@@ -62,6 +64,11 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
 
   float rho = sqrt(px*px + py*py);
   float phi = atan2(py, px);
+
+  if(rho < 0.0001){
+    rho = 0.0001;
+  }
+
   float rho_dot = (px*vx + py*vy)/rho;
 
   VectorXd h = VectorXd(3);
@@ -69,22 +76,22 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
 
   VectorXd y = z - h;
 
-  if (y(1) > PI){
-    y(1) = y(1) - 2*PI;
-  }
-  else if (y(1) < -PI){
-    y(1) = y(1) +2*PI;
+  //Adjust the value of theta if it is outside of [-M_PI, M_PI]
+  if (y(1) > M_PI){
+    y(1) = y(1) - 2*M_PI;
   }
 
-  MatrixXd Ht = H.transpose();
-  MatrixXd Si = S.inverse();
-  MatrixXd I = MatrixXd::Identity(x_size, x_size);
+  else if (y(1) < -M_PI){
+    y(1) = y(1) + 2*M_PI;
+  }
 
-  VectorXd y = z - H_ * x_;
+  MatrixXd Ht = H_.transpose();
   MatrixXd S = H_ * P_ * Ht + R_;
+  MatrixXd Si = S.inverse();
   MatrixXd K =  P_ * Ht * Si;
 
   // new state
   x_ = x_ + (K * y);
+  MatrixXd I = MatrixXd::Identity(x_.size(), x_.size());
   P_ = (I - K * H_) * P_;
 }

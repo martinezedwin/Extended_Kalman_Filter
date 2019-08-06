@@ -37,12 +37,9 @@ FusionEKF::FusionEKF() {
    * TODO: Set the process and measurement noises
    */
   //Initialize x, F, H_laser, H_jacobian, P, noise
-  ekf_.x_ = VectorXd(4);            
+  //ekf_.x_ = VectorXd(4);            
   ekf_.F_ = MatrixXd(4, 4);
   ekf_.P_ = MatrixXd(4, 4);
-  //ekf_.Q_ = MatrixXd(4, 4);
-  float noise_ax;
-  float noise_ay;
 
   ekf_.F_ << 1, 0, 1, 0,
              0, 1, 0, 1,
@@ -54,11 +51,9 @@ FusionEKF::FusionEKF() {
              0, 0, 1000, 0,
              0, 0, 0 ,1000;
 
-  H_laser_<< 1, 0, 0, 0
+  H_laser_<< 1, 0, 0, 0,
              0, 1, 0, 0;
 
-  noise_ax = 9;
-  noise_ay = 9;
 }
 
 /**
@@ -90,19 +85,27 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       float phi = measurement_pack.raw_measurements_[1]; //bearing
       float rho_dot = measurement_pack.raw_measurements_[2]; //velocity
 
-      float x = rho*cos(phi);
-      float y = rho*sin(phi);
+      float px = rho*cos(phi);
+      float py = rho*sin(phi);
       float vx = rho_dot*cos(phi);
       float vy = rho_dot*sin(phi);
 
-      ekf_.x_ << x,y,vx,vy;
+      if (px<0.0001){
+        px = 0.0001;
+      }
+
+      if (py<0.0001){
+        py = 0.0001;
+      }
+
+      ekf_.x_ << px,py,vx,vy;
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
       // TODO: Initialize state.
-      x = measurement_pack.raw_measurements_[0];
-      y = measurement_pack.raw_measurements_[1];
-      ekf_.x_(0) = x;
-      ekf.x_(1) = y;
+      float px = measurement_pack.raw_measurements_[0];
+      float py = measurement_pack.raw_measurements_[1];
+      ekf_.x_(0) = px;
+      ekf_.x_(1) = py;
 
     // done initializing, no need to predict or update
     is_initialized_ = true;
@@ -122,15 +125,23 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   float dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0;
   previous_timestamp_ = measurement_pack.timestamp_;
 
+  float dt_2 = dt * dt;
+  float dt_3 = dt_2 * dt;
+  float dt_4 = dt_3 * dt;
+
   //Update matrix F
   ekf_.F_(0, 2) = dt;
   ekf_.F_(1, 3) = dt;
 
+  float noise_ax = 9.0;
+  float noise_ay = 9.0;
+
   ekf_.Q_ = MatrixXd(4, 4);
-  ekf_.Q_ << ((dt*dt*dt*dt)/4) * noise_ax, 0, ((dt*dt*dt)/2) * noise_ax, 0,
-            0, ((dt*dt*dt*dt)/4) * noise_ay, 0, ((dt*dt*dt)/2) * noise_ay,
-            ((dt*dt*dt)/2) * noise_ax, 0, (dt*dt)*noise_ax, 0,
-            0, ((dt*dt*dt)/2) * noise_ay, 0, (dt*dt)*noise_ay;
+  ekf_.Q_ << dt_4/4*noise_ax, 0, dt_3/2*noise_ax, 0,
+            0, dt_4/4*noise_ay, 0, dt_3/2*noise_ay,
+            dt_3/2*noise_ax, 0, dt_2*noise_ax, 0,
+            0, dt_3/2*noise_ay, 0, dt_2*noise_ay;
+
   ekf_.Predict();
 
   /**
@@ -153,10 +164,11 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     // TODO: Laser updates
     ekf_.H_= H_laser_;
     ekf_.R_ = R_laser_;
-    ekf_.UpdateEKF(measurement_pack.raw_measurements_);
+    ekf_.Update(measurement_pack.raw_measurements_);
   }
 
   // print the output
   cout << "x_ = " << ekf_.x_ << endl;
   cout << "P_ = " << ekf_.P_ << endl;
+}
 }
