@@ -35,10 +35,6 @@ FusionEKF::FusionEKF() {
               0, 0.0009, 0,
               0, 0, 0.09;
 
-  /**
-   * TODO: Finish initializing the FusionEKF.
-   * TODO: Set the process and measurement noises
-   */
   //Initialize x, F, H_laser, H_jacobian, P, noise
   //ekf_.x_ = VectorXd(4);     //State vector will contain [px, py, vx, vy]            
   ekf_.F_ = MatrixXd(4, 4);  //State transition matrix
@@ -65,7 +61,6 @@ FusionEKF::FusionEKF() {
              0, 1, 0, 0;
 
 }
-
 /**
  * Destructor.
  */
@@ -102,15 +97,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       float vx = rho_dot*cos(phi);
       float vy = rho_dot*sin(phi);
       //std::cout<<" Radar - px, py, vx, vy: "<<px<<" "<<py<<" "<<vx<<" "<<vy<<"\n";
-      //Check the converted px and py are not too small
-      /*
-      if (px<0.0001){
-        px = 0.0001;
-      }
-      if (py<0.0001){
-        py = 0.0001;
-      }
-      */
       ekf_.x_ << px,py,vx,vy;
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
@@ -123,7 +109,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     // done initializing, no need to predict or update
     
     cout << "Completed initialization of FusionEKF.\n";
-    std::cout<<" LASER - px, py: "<<px<<" "<<py<<"\n";
     return;
     }
     previous_timestamp_ = measurement_pack.timestamp_;
