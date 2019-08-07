@@ -52,4 +52,10 @@ Here is the main protocol that main.cpp uses for uWebSocketIO in communicating w
 
 Extended Kalman Filter
 ---
+The EKF takes in sensor data, in this case lidar (red dots) and radar (blue dots). It then tries to predict the state (px, py, vx, vy) basead on the previous measurement in a loop. 
 
+The predictions made can be seen in green triangles. These predictions where then compared to the actual ground truth value using the Root Mean Squared Error (RMSE) and aggregated for each point. 
+
+The final RMSE values where [0.0945, 0.0851, 0.3953, 0.4590] for Data1 coming from the obj_pose-laser-radar-synthetic-input.txt.
+
+[![Final result video](./Images/Extended_kalman_filter_video_cover.jpg)](https://www.youtube.com/watch?v=6V0R5MHgLpk)
