@@ -57,7 +57,7 @@ The EKF takes in sensor data, in this case lidar (red dots) and radar (blue dots
 The predictions made can be seen in green triangles. These predictions where then compared to the actual ground truth value using the Root Mean Squared Error (RMSE) and aggregated for each point. 
 
 The final RMSE values where [0.0945, 0.0851, 0.3953, 0.4590] for Data1 coming from the obj_pose-laser-radar-synthetic-input.txt.
-[EKF](./Images/EKF.jpg)
+![EKF](./Images/EKF.jpg)
 
 You can see a video of how it works when it is ran in the simulator:
 
