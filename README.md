@@ -61,4 +61,4 @@ The final RMSE values where [0.0945, 0.0851, 0.3953, 0.4590] for Data1 coming fr
 
 You can see a video of how it works when it is ran in the simulator:
 
-[![Final result video](./Images/Extended_kalman_filter_video_cover.jpg)](https://www.youtube.com/watch?v=6V0R5MHgLpk)
+[![Final result video](./Images/Extended_kalman_filter_video_cover.jpg)](https://www.youtube.com/watch?v=YffzjReK0Y4)
